@@ -3,8 +3,9 @@
 file = File.open('inputs/input_day05.txt')
 input = file.read.split("\n\n")
 
-def part1(input)
-  seeds = seeds(input[0])
+def resolve(input)
+  seeds_part1 = seeds_part1(input[0])
+  seeds_part2 = seeds_part2(input[0])
   seed_to_oil_map = mapper(input[1], "seed-to-soil map:\n")
   soil_to_fertilizer = mapper(input[2], "soil-to-fertilizer map:\n")
   fertilizer_to_water = mapper(input[3], "fertilizer-to-water map:\n")
@@ -15,12 +16,24 @@ def part1(input)
 
   categories = [seed_to_oil_map, soil_to_fertilizer, fertilizer_to_water, water_to_light, light_to_temperature, temperature_to_humidity, humidity_to_location]
 
-  p "part1: #{find_lower_location(seeds, categories)}"
+  p "part1: #{find_lower_location_part1(seeds_part1, categories)}"
+  p "part2: #{find_lower_location_part2(seeds_part2, categories)}"
 end
 
-def seeds(seeds)
+def seeds_part1(seeds)
   pattern = /seeds: (.+)/
   seeds.match(pattern)[1].split.map(&:to_i)
+end
+
+def seeds_part2(seeds)
+  pattern = /seeds: (.+)/
+  seeds
+    .match(pattern)[1]
+    .split
+    .map(&:to_i)
+    .each_slice(2)
+    .to_a
+    .flat_map { |start, length| (start...(start + length)) }
 end
 
 def mapper(input, category)
@@ -46,10 +59,19 @@ def find_location(seed, categories)
   end
 end
 
-def find_lower_location(seeds, categories)
+def find_lower_location_part1(seeds, categories)
   seeds.map do |seed|
     find_location(seed, categories)
   end.min
 end
 
-part1(input)
+def find_lower_location_part2(seeds, categories)
+  locations = seeds.map do |seed_range|
+    seed_range.map do |seed|
+      find_location(seed, categories)
+    end.min
+  end
+  locations.min
+end
+
+resolve(input)
